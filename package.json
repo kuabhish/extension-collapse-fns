@@ -1,8 +1,9 @@
 {
   "name": "vader-collapse-fns",
-  "displayName": "vader-collapse-fns",
+  "displayName": "Vader Collapse Functions",
   "description": "",
-  "version": "0.0.1",
+  "publisher": "stars-dreamer",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.103.0"
   },
@@ -13,17 +14,26 @@
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
-      {
-        "command": "vaderCollapseFns.collapseAllFunctions",
-        "title": "Collapse All Functions"
-      }
+        {
+            "command": "vaderCollapseFns.collapseAllFunctions",
+            "title": "Collapse All Functions"
+        },
+        {
+            "command": "vaderCollapseFns.expandAllFunctions",
+            "title": "Expand All Functions"
+        }
     ],
     "keybindings": [
-      {
-        "command": "vaderCollapseFns.collapseAllFunctions",
-        "key": "cmd+alt+f",
-        "when": "editorTextFocus"
-      }
+        {
+            "command": "vaderCollapseFns.collapseAllFunctions",
+            "key": "cmd+alt+f",
+            "when": "editorTextFocus"
+        },
+        {
+            "command": "vaderCollapseFns.expandAllFunctions",
+            "key": "cmd+alt+e",
+            "when": "editorTextFocus"
+        }
     ]
   },
   "scripts": {
