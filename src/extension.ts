@@ -19,23 +19,37 @@ export function activate(context: vscode.ExtensionContext) {
         // Regex for Python (def) and JS/TS (function)
         const isPython = editor.document.languageId === 'python';
         const regex = isPython
-            ?/^([ ]*)def\s+(\w+)\s*\((.*?)\)\s*:/gm
-            : /^\s*(function)\s+(\w+)\s*(?:\((.*?)\))?\s*{/gm; // JS/TS: only function
+            ? /^([ ]*)def\s+(\w+)\s*\(([\s\S]*?)\)\s*(?:->\s*[\w\[\], ]+)?\s*:/gm
+            : /^\s*(function)\s+(\w+)\s*(?:\((.*?)\))?\s*{/gm;
+
 
         console.log(`Using regex for ${isPython ? 'Python' : 'JS/TS'}`);
 
         let match;
         let matchCount = 0;
         while ((match = regex.exec(text)) !== null) {
-            // Calculate line number using positionAt for accuracy
-            const lineNum = editor.document.positionAt(match.index).line;
-            const line = editor.document.lineAt(lineNum);
-            // const symbolType = match[1]; // 'def' or 'function'
-            // const symbolName = match[2]; // function name
-            console.log(`debug -- line ${lineNum + 1}: ${line.text}`,  line,line.range);
-            // console.log(`Found ${symbolType} '${symbolName}' at line ${lineNum + 1}`);
-            ranges.push(line.range);
-            matchCount++;
+            // // Calculate line number using positionAt for accuracy
+            // const lineNum = editor.document.positionAt(match.index).line;
+            // const line = editor.document.lineAt(lineNum);
+            // // const symbolType = match[1]; // 'def' or 'function'
+            // // const symbolName = match[2]; // function name
+            // console.log(`debug -- line ${lineNum + 1}: ${line.text}`,  line,line.range);
+            // // console.log(`Found ${symbolType} '${symbolName}' at line ${lineNum + 1}`);
+            // ranges.push(line.range);
+            // matchCount++;
+
+            // Start line (where `def` begins)
+            const startLineNum = editor.document.positionAt(match.index).line;
+
+            // End line (where the regex finished, after `):`)
+            const endPos = match.index + match[0].length;
+            const endLineNum = editor.document.positionAt(endPos).line;
+
+            const endLine = editor.document.lineAt(endLineNum);
+
+            console.log(`Function starts at line ${startLineNum + 1}, ends at line ${endLineNum + 1}: ${endLine.text}`);
+
+            ranges.push(endLine.range);
         }
 
         if (ranges.length === 0) {
@@ -73,6 +87,21 @@ export function activate(context: vscode.ExtensionContext) {
                 console.log(`Skipping fold for one-liner function at line ${startLine + 1}`);
             }
         }
+
+        // for (const range of ranges) {
+        //     const startLine = range.start.line;
+        //     const endLine = range.end.line;
+
+        //     if (endLine > startLine) {
+        //         const foldRange = new vscode.Range(startLine, 0, endLine, 0);
+        //         editor.selection = new vscode.Selection(foldRange.start, foldRange.start);
+        //         await vscode.commands.executeCommand('editor.fold');
+        //         console.log(`Folding function from line ${startLine + 1} to ${endLine + 1}`);
+        //     } else {
+        //         console.log(`Skipping one-liner function at line ${startLine + 1}`);
+        //     }
+        // }
+
 
         console.log(`Successfully collapsed ${ranges.length} functions`);
         vscode.window.showInformationMessage(`Collapsed ${ranges.length} functions`);
